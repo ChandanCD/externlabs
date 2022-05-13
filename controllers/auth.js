@@ -1,6 +1,9 @@
 const auth = (req, res, next) => {
 
-  const { username, password } = req.body;
+  // check for basic auth header
+  if (!req.headers.authorization || req.headers.authorization.indexOf('Basic ') === -1) {
+    return res.status(401).json({ message: 'Missing Authorization Header' });
+  }
   /**
    * Authentication can be done with passport token as well
    * by default set isAuthorized to false
@@ -9,18 +12,13 @@ const auth = (req, res, next) => {
   let isAuthorized = false;
 
   // Check if username and password is provided
-  if (!username || !password) {
-    return res.status(400).json({
-      message: "Username or Password not present",
-      error: "User not found",
-    });
-  }else{
-    if(username === 'admin' && password === 'admin'){
-      isAuthorized = true;
-      res.status(200).json({
-        message: "User is Authorised"
-      });
-    }
+  const base64Credentials = req.headers.authorization.split(' ')[1];
+  const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+  const [username, password] = credentials.split(':');
+  if(username === 'admin' && password === 'admin'){
+    isAuthorized = true;
+  }else {
+    return res.status(400).json({ message: 'Username or Password not present', error: "User not found" });
   }
 
   // if is not authorised send message
