@@ -33,7 +33,7 @@ router.post("/upload", auth, (req, res) => {
  });
 });
 
-router.get('/gallery/:fileName', (req, res, next) => {
+router.get('/gallery/:fileName', auth, (req, res, next) => {
 
   const options = {
     root: './public/uploads/'
@@ -45,7 +45,7 @@ router.get('/gallery/:fileName', (req, res, next) => {
   });
 });
 
-router.get('/download/:fileName', (req, res) => {
+router.get('/download/:fileName', auth, (req, res) => {
   const file = `./public/uploads/${req.params.fileName}`;
   res.download(file, (err) => {
     if (err) console.error("Error : ", err);
